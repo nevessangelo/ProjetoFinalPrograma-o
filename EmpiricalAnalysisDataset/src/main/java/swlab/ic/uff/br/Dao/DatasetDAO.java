@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import swlab.ic.uff.br.ConnectionMysql.ConnectionBD;
@@ -22,31 +23,52 @@ import swlab.ic.uff.br.Controller.Types;
  * @author angelo
  */
 public class DatasetDAO {
-    
-    public static ArrayList<Linkset> getRelevants(String name_dataset){
+
+    public static ArrayList<String> getAllFeatures() {
+        ArrayList<String> allFeatures = new ArrayList<>();
+        try {
+            Connection conn = ConnectionBD.Connect();
+            if (conn != null) {
+                String query = "SELECT DISTINCT features FROM Features WHERE tipo_feature = 'Linkset' UNION "
+                        + "SELECT DISTINCT features FROM Features WHERE tipo_feature = 'Types'";
+                PreparedStatement preparedStmt = conn.prepareStatement(query);
+                ResultSet rs = preparedStmt.executeQuery();
+                while (rs.next()) {
+                     String feature = rs.getString("features");
+                     allFeatures.add(feature);
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DatasetDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(DatasetDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return allFeatures;
+    }
+
+    public static ArrayList<Linkset> getRelevants(String name_dataset) {
         ArrayList<Linkset> datasets_relevants = new ArrayList<>();
         try {
             Connection conn = ConnectionBD.Connect();
             if (conn != null) {
                 String query = "SELECT DISTINCT features, frequencia FROM  `Features'` WHERE nome_dataset = ? AND "
                         + "tipo_feature = ?";
-                 PreparedStatement preparedStmt = conn.prepareStatement(query);
-                 preparedStmt.setString(1, name_dataset);
-                 preparedStmt.setString(2, "Linkset");
-                 ResultSet rs = preparedStmt.executeQuery();
-                 while (rs.next()) {
-                     Linkset linkset = new Linkset();
-                     String feature = rs.getString("features")+"-uni-mannheim";
-                     Double frequen = rs.getDouble("frequencia");
-                     linkset.setName(feature);
-                     linkset.setFrquen(frequen);
-                     datasets_relevants.add(linkset);
-                 }
-                 
-                
+                PreparedStatement preparedStmt = conn.prepareStatement(query);
+                preparedStmt.setString(1, name_dataset);
+                preparedStmt.setString(2, "Linkset");
+                ResultSet rs = preparedStmt.executeQuery();
+                while (rs.next()) {
+                    Linkset linkset = new Linkset();
+                    String feature = rs.getString("features") + "-uni-mannheim";
+                    Double frequen = rs.getDouble("frequencia");
+                    linkset.setName(feature);
+                    linkset.setFrquen(frequen);
+                    datasets_relevants.add(linkset);
+                }
+
             }
             conn.close();
-            
+
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DatasetDAO.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
@@ -54,8 +76,8 @@ public class DatasetDAO {
         }
         return datasets_relevants;
     }
-    
-    public static Double getDatasetSize(String nome_dataset){
+
+    public static Double getDatasetSize(String nome_dataset) {
         Double size = 0.0;
         try {
             Connection conn = ConnectionBD.Connect();
@@ -76,7 +98,8 @@ public class DatasetDAO {
         }
         return size;
     }
-    public static ArrayList<Types> getTypes(String nome_dataset){
+
+    public static ArrayList<Types> getTypes(String nome_dataset, HashMap<String, Integer> Hmindex) {
         ArrayList<Types> list_types = new ArrayList<>();
         try {
             Connection conn = ConnectionBD.Connect();
@@ -89,6 +112,8 @@ public class DatasetDAO {
                     Types types = new Types();
                     String type = rs.getString("features");
                     Double frequen = rs.getDouble("frequencia");
+                    int index = Hmindex.get(type);
+                    types.setId(index);
                     types.setName(type);
                     types.setFrquen(frequen);
                     list_types.add(types);
@@ -100,11 +125,11 @@ public class DatasetDAO {
         } catch (SQLException ex) {
             Logger.getLogger(DatasetDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return list_types;
     }
-    
-    public static ArrayList<Linkset> getLinksets(String nome_dataset){
+
+    public static ArrayList<Linkset> getLinksets(String nome_dataset, HashMap<String, Integer> Hmindex) {
         ArrayList<Linkset> list_linkset = new ArrayList<>();
         try {
             Connection conn = ConnectionBD.Connect();
@@ -116,10 +141,15 @@ public class DatasetDAO {
                 while (rs.next()) {
                     Linkset linkset = new Linkset();
                     String feature = rs.getString("features");
-                    Double frequen = rs.getDouble("frequencia");
-                    linkset.setName(feature);
-                    linkset.setFrquen(frequen);
-                    list_linkset.add(linkset);
+                    if(!feature.equals("http://swlab.ic.uff.br/resource/wikier-org")){
+                        Double frequen = rs.getDouble("frequencia");
+                        linkset.setName(feature);
+                        int index = Hmindex.get(feature);
+                        linkset.setId(index);
+                        linkset.setFrquen(frequen);
+                        list_linkset.add(linkset);
+                    }
+                    
                 }
             }
             conn.close();
@@ -128,11 +158,11 @@ public class DatasetDAO {
         } catch (SQLException ex) {
             Logger.getLogger(DatasetDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return list_linkset;
     }
-    
-    public static ArrayList<Dataset> GetDatasetsLS(){
+
+    public static ArrayList<Dataset> GetDatasetsLS() {
         ArrayList<Dataset> datasets = new ArrayList<>();
         try {
             Connection conn = ConnectionBD.Connect();
@@ -147,7 +177,7 @@ public class DatasetDAO {
                     datasets.add(dataset);
                 }
             }
-            conn.close();    
+            conn.close();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DatasetDAO.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
@@ -155,8 +185,8 @@ public class DatasetDAO {
         }
         return datasets;
     }
-    
-    public static ArrayList<Dataset> GetDatasetsTypes(){
+
+    public static ArrayList<Dataset> GetDatasetsTypes() {
         ArrayList<Dataset> datasets = new ArrayList<>();
         try {
             Connection conn = ConnectionBD.Connect();
@@ -171,7 +201,7 @@ public class DatasetDAO {
                     datasets.add(dataset);
                 }
             }
-            conn.close();    
+            conn.close();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DatasetDAO.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
@@ -179,7 +209,5 @@ public class DatasetDAO {
         }
         return datasets;
     }
-    
-    
-    
+
 }

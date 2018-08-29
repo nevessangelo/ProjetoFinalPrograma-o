@@ -11,6 +11,7 @@ package swlab.ic.uff.br.Controller;
  */
 public class Feature {
     
+    private int id;
     private String name;
     private Double frquen;
     
@@ -21,15 +22,15 @@ public class Feature {
     /**
      * @return the name
      */
-    public String getName() {
-        return name;
+    public int getId() {
+        return id;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
@@ -44,6 +45,20 @@ public class Feature {
      */
     public void setFrquen(Double frquen) {
         this.frquen = frquen;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
     
 }

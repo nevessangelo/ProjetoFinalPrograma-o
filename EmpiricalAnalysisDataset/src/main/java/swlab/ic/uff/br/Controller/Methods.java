@@ -32,6 +32,16 @@ public class Methods {
 
     public static void PopuledLists(int entrada) {
         DatasetDAO datasetdao = new DatasetDAO();
+        
+        ArrayList<String> allFeatures = datasetdao.getAllFeatures();
+        
+        HashMap<String, Integer> index = new HashMap<>();
+        Integer indexCount = 1;
+        
+        for(String feature: allFeatures){
+            index.put(feature, indexCount);
+            indexCount++;
+        }
 
         ArrayList<Dataset> test_0 = new ArrayList<>();
         ArrayList<Dataset> tranning_1 = new ArrayList<>();
@@ -40,8 +50,10 @@ public class Methods {
         ArrayList<Dataset> datasets = null;
         if (entrada == 1) {
             datasets = datasetdao.GetDatasetsLS();
+        }else if(entrada == 2){
+            datasets = datasetdao.GetDatasetsTypes();            
         }
-
+        
         Integer cont = 1;
         for (Dataset dataset : datasets) {
             if (cont == 4) {
@@ -62,16 +74,17 @@ public class Methods {
             dataset.setRelevants(datasetdao.getRelevants(dataset.getNome()));
             dataset.setSize(datasetdao.getDatasetSize(dataset.getNome()));
             Feature_Type feature_type = new Feature_Type();
-            ArrayList<Linkset> ls = datasetdao.getLinksets(dataset.getNome());
+            ArrayList<Linkset> ls = datasetdao.getLinksets(dataset.getNome(), index);
             feature_type.setLinkset(ls);
-            ArrayList<Types> types = datasetdao.getTypes(dataset.getNome());
+            ArrayList<Types> types = datasetdao.getTypes(dataset.getNome(), index);
             feature_type.setTypes(types);
             dataset.setType(feature_type);
 
         }
+        
         CrossValidation cross_1 = new CrossValidation(test_0, tranning_1, tranning_2);
         CrossValidation cross_2 = new CrossValidation(tranning_1, test_0, tranning_2);
-        CrossValidation cross_3 = new CrossValidation((tranning_2), tranning_1, test_0);
+        CrossValidation cross_3 = new CrossValidation(tranning_2, tranning_1, test_0);
 
         ArrayList<CrossValidation> list_cross = new ArrayList<>();
         list_cross.add(cross_1);
@@ -81,6 +94,7 @@ public class Methods {
         ArrayList<ArrayList<Double>> mean_ndcg = new ArrayList<>();
         ArrayList<ArrayList<Double>> mean_recall = new ArrayList<>();
         int size = 0;
+        
         for (CrossValidation cross : list_cross) {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<MeanRetrivieal> futureResult = executor.submit(new task(entrada, cross.getTest(), cross.getTranning_1(), cross.getTranning_2()));
@@ -101,10 +115,10 @@ public class Methods {
         System.out.println(Creates.mean_lists(mean_ndcg, size));
         System.out.println(Creates.mean_lists(mean_recall, size));
         
-        final ExportGraphic demo = new ExportGraphic("Chart", Creates.mean_lists(mean_ndcg, size), Creates.mean_lists(mean_recall, size));
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
+//        final ExportGraphic demo = new ExportGraphic("Chart", Creates.mean_lists(mean_ndcg, size), Creates.mean_lists(mean_recall, size));
+//        demo.pack();
+//        RefineryUtilities.centerFrameOnScreen(demo);
+//        demo.setVisible(true);
         
 
     }

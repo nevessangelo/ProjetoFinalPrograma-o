@@ -75,8 +75,8 @@ public class ExportGraphic extends ApplicationFrame {
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.white);
 
-//        final StandardLegend legend = (StandardLegend) chart.getLegend();
-  //      legend.setDisplaySeriesShapes(true);
+        //final StandardLegend legend = (StandardLegend) chart.getLegend();
+        //legend.setDisplaySeriesShapes(true);
         
         // get a reference to the plot for further customisation...
         final XYPlot plot = chart.getXYPlot();
@@ -92,8 +92,8 @@ public class ExportGraphic extends ApplicationFrame {
         plot.setRenderer(renderer);
 
         // change the auto tick unit selection to integer units only...
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+//        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+//        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         // OPTIONAL CUSTOMISATION COMPLETED.
                 
         return chart;

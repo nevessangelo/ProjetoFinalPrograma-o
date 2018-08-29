@@ -55,14 +55,14 @@ public class task implements  Callable<MeanRetrivieal> {
         all_datasets.addAll(tranning_1);
         all_datasets.addAll(tranning_2);
 
-        ArrayList<String> vector_features = VectorFeatures(all_datasets_tranning, entrada);
-
+        ArrayList<Integer> vector_features = VectorFeatures(all_datasets_tranning, entrada);
+    
         lists.setTest(test);
         lists.setTranning_1(tranning_1);
         lists.setTranning_2(tranning_2);
-
-        HashMap<Dataset, ArrayList<ArrayList<Feature>>> hmap = CreateSets(test, vector_features);
-
+        
+        HashMap<Dataset, ArrayList<ArrayList<Feature>>> hmap = CreateSets(test, vector_features, entrada);
+                      
         ArrayList<String> name_datasets = new ArrayList<>();
         for (Dataset dataset : all_datasets_tranning) {
             String name_dataset = dataset.getNome();
@@ -73,8 +73,9 @@ public class task implements  Callable<MeanRetrivieal> {
         TFIDF tfidf = new TFIDF();
 
         HashMap<Dataset, ArrayList<Double>> tf_idf_traning = CreateTFIDF.createTF_IDF(
-                vector_features, all_datasets_tranning, name_datasets);
+                vector_features, all_datasets_tranning, name_datasets, entrada);
 
+        
         tfidf.setTf_idf_traning(tf_idf_traning);
 
         Cosseno cosseno = new Cosseno();
@@ -85,7 +86,7 @@ public class task implements  Callable<MeanRetrivieal> {
         for (Dataset dataset : datasets_test) {
             ArrayList<ArrayList<Feature>> set_dataset = hmap.get(dataset);
             for (ArrayList<Feature> set : set_dataset) {
-                ArrayList<Double> vector_set = CreateTFIDF.createTFIDFTest(vector_features, set, all_datasets, dataset);
+                ArrayList<Double> vector_set = CreateTFIDF.createTFIDFTest(vector_features, set, all_datasets, dataset, entrada);
                 tfidf.setTest(vector_set);
                 computation.setTf_idf_method(tfidf);
                 Mean mean = cosseno.Recomendation(computation, all_datasets_tranning, dataset, set);
@@ -103,8 +104,7 @@ public class task implements  Callable<MeanRetrivieal> {
         meanRetrivieal.setRecall_mean(mean_recall);
         
         return meanRetrivieal;
-
-        
+       
     }
 
 }

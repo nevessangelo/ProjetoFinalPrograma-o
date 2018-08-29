@@ -14,7 +14,7 @@ import java.util.Iterator;
  * @author angelo
  */
 public class Creates {
-    
+
     public static ArrayList<Double> mean_lists(ArrayList<ArrayList<Double>> lists, int size) {
         ArrayList<Double> list_return = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -30,11 +30,10 @@ public class Creates {
         return list_return;
 
     }
-    
-     public static ArrayList<String> VectorFeatures(ArrayList<Dataset> all_datasets_tranning, int entrada) {
 
+    public static ArrayList<Integer> VectorFeatures(ArrayList<Dataset> all_datasets_tranning, int entrada) {
 
-        ArrayList<String> vector_features = new ArrayList<>();
+        ArrayList<Integer> vector_features = new ArrayList<>();
         ArrayList<String> datasets = new ArrayList<>();
 
         for (Dataset dataset : all_datasets_tranning) {
@@ -46,41 +45,73 @@ public class Creates {
             for (Dataset dataset : all_datasets_tranning) {
                 ArrayList<Linkset> linksets = dataset.getType().getLinkset();
 
-                //ArrayList<String> linksets = dataset.getLinkset();
                 for (Linkset linkset : linksets) {
                     String aux_dataset = linkset.getName() + "-uni-mannheim";
-                    if ((datasets.contains(aux_dataset)) && (!vector_features.contains(aux_dataset))) {
-                        vector_features.add(aux_dataset);
+                    if ((datasets.contains(aux_dataset)) && (!vector_features.contains(linkset.getId()))) {
+                        vector_features.add(linkset.getId());
                     }
 
+                }
+            }
+        }else if (entrada == 2) {
+            for (Dataset dataset : all_datasets_tranning) {
+                ArrayList<Types> types = dataset.getType().getTypes();
+                for (Types type : types) {
+                    if (!vector_features.contains(type.getId())) {
+                        vector_features.add(type.getId());
+                    }
                 }
             }
         }
         return vector_features;
 
     }
-    
-    public static HashMap<Dataset, ArrayList<ArrayList<Feature>>> CreateSets(ArrayList<Dataset> test, ArrayList<String> vector_features) {
+
+    public static HashMap<Dataset, ArrayList<ArrayList<Feature>>> CreateSets(ArrayList<Dataset> test, ArrayList<Integer> vector_features,
+            int entrada) {
+
         HashMap<Dataset, ArrayList<ArrayList<Feature>>> hmap = new HashMap<Dataset, ArrayList<ArrayList<Feature>>>();
-        for (Dataset dataset : test) {
-            ArrayList<Linkset> linksets = dataset.getType().getLinkset();
-            ArrayList<Feature> linksets_sets = new ArrayList<>();
-
-            Iterator itr = linksets.iterator();
-            while (itr.hasNext()) {
-                Linkset linkset = (Linkset) itr.next();
-                String aux_dataset = linkset.getName() + "-uni-mannheim";
-                if (vector_features.contains(aux_dataset)) {
-                    linksets_sets.add(linkset);
+        if(entrada == 1){
+            for (Dataset dataset : test) {
+                
+                ArrayList<Linkset> linksets = dataset.getType().getLinkset();
+            
+                ArrayList<Feature> linksets_sets = new ArrayList<>();
+                Iterator itr = linksets.iterator();
+                while (itr.hasNext()) {
+                    Linkset linkset = (Linkset) itr.next();
+                    String aux_dataset = linkset.getName() + "-uni-mannheim";
+                    if (vector_features.contains(linkset.getId())) {
+                        linksets_sets.add(linkset);
+                    }
+                    ArrayList<ArrayList<Feature>> sets = Sets.GenerateSets(linksets_sets, 5, 5);
+                    hmap.put(dataset, sets);
                 }
-
-                ArrayList<ArrayList<Feature>> sets = Sets.GenerateSets(linksets_sets, 5, 5);
-                hmap.put(dataset, sets);
+                
+                
             }
-
+            
+        }else if(entrada == 2){
+            for (Dataset dataset : test) {
+               
+                ArrayList<Types> types = dataset.getType().getTypes();
+                ArrayList<Feature> types_sets = new ArrayList<>();
+                Iterator itr = types.iterator();
+                while (itr.hasNext()) {
+                    
+                    Types type = (Types) itr.next();
+                    if (vector_features.contains(type.getId())) {
+                        types_sets.add(type);
+                    }
+                    ArrayList<ArrayList<Feature>> sets = Sets.GenerateSets(types_sets, 5, 15); 
+                    hmap.put(dataset, sets);
+                    
+                }
+            }
+            
         }
+
         return hmap;
     }
 
-    
 }

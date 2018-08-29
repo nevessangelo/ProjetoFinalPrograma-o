@@ -183,7 +183,7 @@ public abstract class Strategy {
             double aux = i / recall_.size();
             recall.add(aux);
         }
-       
+        
         return recall;
     }
 
