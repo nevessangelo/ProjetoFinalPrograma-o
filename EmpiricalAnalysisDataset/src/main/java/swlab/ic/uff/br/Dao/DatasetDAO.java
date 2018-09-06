@@ -29,8 +29,7 @@ public class DatasetDAO {
         try {
             Connection conn = ConnectionBD.Connect();
             if (conn != null) {
-                String query = "SELECT DISTINCT features FROM Features WHERE tipo_feature = 'Linkset' UNION "
-                        + "SELECT DISTINCT features FROM Features WHERE tipo_feature = 'Types'";
+                String query = "SELECT DISTINCT b.features FROM `Dataset` a, `Features'` b  WHERE a.nome_dataset = b.nome_dataset AND (b.tipo_feature = 'Linkset' OR b.tipo_feature = 'Types')";
                 PreparedStatement preparedStmt = conn.prepareStatement(query);
                 ResultSet rs = preparedStmt.executeQuery();
                 while (rs.next()) {
@@ -104,7 +103,7 @@ public class DatasetDAO {
         try {
             Connection conn = ConnectionBD.Connect();
             if (conn != null) {
-                String query = "SELECT DISTINCT features, frequencia FROM Features WHERE tipo_feature = 'Types' AND nome_dataset = ?";
+                String query = "SELECT DISTINCT features, frequencia FROM `Features'` WHERE tipo_feature = 'Types' AND nome_dataset = ?";
                 PreparedStatement preparedStmt = conn.prepareStatement(query);
                 preparedStmt.setString(1, nome_dataset);
                 ResultSet rs = preparedStmt.executeQuery();
@@ -134,21 +133,25 @@ public class DatasetDAO {
         try {
             Connection conn = ConnectionBD.Connect();
             if (conn != null) {
-                String query = "SELECT DISTINCT features, frequencia FROM Features WHERE tipo_feature = 'Linkset' AND nome_dataset = ?";
+                String query = "SELECT DISTINCT features, frequencia FROM `Features'` WHERE tipo_feature = 'Linkset' AND nome_dataset = ?";
                 PreparedStatement preparedStmt = conn.prepareStatement(query);
                 preparedStmt.setString(1, nome_dataset);
                 ResultSet rs = preparedStmt.executeQuery();
                 while (rs.next()) {
                     Linkset linkset = new Linkset();
                     String feature = rs.getString("features");
-                    if(!feature.equals("http://swlab.ic.uff.br/resource/wikier-org")){
-                        Double frequen = rs.getDouble("frequencia");
-                        linkset.setName(feature);
+                    Double frequen = rs.getDouble("frequencia");
+                    linkset.setName(feature);
+                    try{
                         int index = Hmindex.get(feature);
                         linkset.setId(index);
                         linkset.setFrquen(frequen);
                         list_linkset.add(linkset);
+                    }catch(Throwable e){
+                        continue;
                     }
+                    
+                    
                     
                 }
             }
@@ -167,7 +170,7 @@ public class DatasetDAO {
         try {
             Connection conn = ConnectionBD.Connect();
             if (conn != null) {
-                String query = "SELECT id_dataset, nome_dataset FROM Dataset WHERE qLS >= 5";
+                String query = "SELECT id_dataset, nome_dataset FROM Dataset WHERE qLS >= 15";
                 PreparedStatement preparedStmt = conn.prepareStatement(query);
                 ResultSet rs = preparedStmt.executeQuery();
                 while (rs.next()) {
@@ -191,7 +194,7 @@ public class DatasetDAO {
         try {
             Connection conn = ConnectionBD.Connect();
             if (conn != null) {
-                String query = "SELECT id_dataset, nome_dataset FROM Dataset WHERE qLS >= 5 AND qType >= 1";
+                String query = "SELECT id_dataset, nome_dataset FROM Dataset WHERE qLS >= 15 AND qType >= 1";
                 PreparedStatement preparedStmt = conn.prepareStatement(query);
                 ResultSet rs = preparedStmt.executeQuery();
                 while (rs.next()) {

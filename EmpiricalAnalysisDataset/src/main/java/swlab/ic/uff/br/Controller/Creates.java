@@ -8,24 +8,51 @@ package swlab.ic.uff.br.Controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author angelo
  */
 public class Creates {
+    
+    public static <T> ArrayList<ArrayList<T>> zip(ArrayList<ArrayList<T>>... lists) {
+        ArrayList<ArrayList<T>> zipped = new ArrayList<ArrayList<T>>();
+        for (ArrayList<ArrayList<T>> all_list : lists) {
+            for (List<T> list : all_list) {
+                for (int i = 0, listSize = list.size(); i < listSize; i++) {
+                    ArrayList<T> list2;
+                    if (i >= zipped.size()) {
+                        zipped.add(list2 = new ArrayList<T>());
+                    } else {
+                        list2 = zipped.get(i);
+                    }
+                    list2.add(list.get(i));
+                }
+            }
+        }
+        return zipped;
+    }
 
-    public static ArrayList<Double> mean_lists(ArrayList<ArrayList<Double>> lists, int size) {
+    public static ArrayList<Double> mean_lists(ArrayList<ArrayList<Double>> lists) {
         ArrayList<Double> list_return = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
+        for(ArrayList<Double> nDCGZip: lists){
             Double sum = 0.0;
-            for (ArrayList<Double> ndcg : lists) {
-                Double number = ndcg.get(i);
+            Integer size = nDCGZip.size();
+            for(Double number: nDCGZip){
                 sum = sum + number;
             }
-            Double mean = sum / size;
+            Double mean = 0.0;
+            if(sum == 0){
+                mean = 0.0;
+            }else{
+                mean = sum / size;
+            }
+           
             list_return.add(mean);
+            
         }
+        
 
         return list_return;
 
@@ -61,6 +88,24 @@ public class Creates {
                         vector_features.add(type.getId());
                     }
                 }
+            }
+        }else if (entrada == 3){
+            for (Dataset dataset : all_datasets_tranning) {
+                ArrayList<Linkset> linksets = dataset.getType().getLinkset();
+                ArrayList<Types> types = dataset.getType().getTypes();
+                
+                for(Linkset linkset: linksets){
+                    if(!vector_features.contains(linkset.getId())){
+                        vector_features.add(linkset.getId());
+                    }
+                }
+                
+                for (Types type : types) {
+                    if (!vector_features.contains(type.getId())) {
+                        vector_features.add(type.getId());
+                    }
+                }
+                
             }
         }
         return vector_features;
@@ -103,11 +148,21 @@ public class Creates {
                     if (vector_features.contains(type.getId())) {
                         types_sets.add(type);
                     }
-                    ArrayList<ArrayList<Feature>> sets = Sets.GenerateSets(types_sets, 5, 15); 
+                    ArrayList<ArrayList<Feature>> sets = Sets.GenerateSets(types_sets, 5, 12); 
                     hmap.put(dataset, sets);
                     
                 }
             }
+            
+        }else if(entrada == 3){
+            for (Dataset dataset : test) {
+                ArrayList<Types> types = dataset.getType().getTypes();
+                ArrayList<Feature> types_sets = new ArrayList<>();
+                
+                
+            }
+            
+            
             
         }
 

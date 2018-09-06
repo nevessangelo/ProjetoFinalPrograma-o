@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jfree.ui.RefineryUtilities;
+import static swlab.ic.uff.br.Controller.Creates.mean_lists;
 import swlab.ic.uff.br.Dao.DatasetDAO;
 import swlab.ic.uff.br.Strategy.Cosseno;
 import swlab.ic.uff.br.Strategy.Mean;
@@ -42,6 +43,7 @@ public class Methods {
             index.put(feature, indexCount);
             indexCount++;
         }
+        
 
         ArrayList<Dataset> test_0 = new ArrayList<>();
         ArrayList<Dataset> tranning_1 = new ArrayList<>();
@@ -50,9 +52,11 @@ public class Methods {
         ArrayList<Dataset> datasets = null;
         if (entrada == 1) {
             datasets = datasetdao.GetDatasetsLS();
-        }else if(entrada == 2){
+        }else if(entrada == 2 || entrada == 3){
             datasets = datasetdao.GetDatasetsTypes();            
         }
+        
+        
         
         Integer cont = 1;
         for (Dataset dataset : datasets) {
@@ -69,7 +73,7 @@ public class Methods {
                 cont++;
             }
         }
-
+        
         for (Dataset dataset : datasets) {
             dataset.setRelevants(datasetdao.getRelevants(dataset.getNome()));
             dataset.setSize(datasetdao.getDatasetSize(dataset.getNome()));
@@ -79,8 +83,8 @@ public class Methods {
             ArrayList<Types> types = datasetdao.getTypes(dataset.getNome(), index);
             feature_type.setTypes(types);
             dataset.setType(feature_type);
-
         }
+        
         
         CrossValidation cross_1 = new CrossValidation(test_0, tranning_1, tranning_2);
         CrossValidation cross_2 = new CrossValidation(tranning_1, test_0, tranning_2);
@@ -102,7 +106,6 @@ public class Methods {
                 MeanRetrivieal resultado = futureResult.get();
                 mean_ndcg.add(resultado.getNdcg_mean());
                 mean_recall.add(resultado.getRecall_mean());
-                size = resultado.getNdcg_mean().size();
             } catch (InterruptedException ex) {
                 Logger.getLogger(Methods.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ExecutionException ex) {
@@ -112,13 +115,20 @@ public class Methods {
 
         }
         
-        System.out.println(Creates.mean_lists(mean_ndcg, size));
-        System.out.println(Creates.mean_lists(mean_recall, size));
+        ArrayList<ArrayList<Double>> zippednDCG = Creates.zip(mean_ndcg);
+        ArrayList<ArrayList<Double>> zippedRecall = Creates.zip(mean_recall);
         
-//        final ExportGraphic demo = new ExportGraphic("Chart", Creates.mean_lists(mean_ndcg, size), Creates.mean_lists(mean_recall, size));
-//        demo.pack();
-//        RefineryUtilities.centerFrameOnScreen(demo);
-//        demo.setVisible(true);
+        ArrayList<Double> nDCG = Creates.mean_lists(zippednDCG);
+        ArrayList<Double> Recall = Creates.mean_lists(zippedRecall);
+        
+        System.out.println(nDCG);
+        System.out.println(Recall);
+        
+         
+        final ExportGraphic demo = new ExportGraphic("Chart", nDCG, Recall);
+        demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
+        demo.setVisible(true);
         
 
     }

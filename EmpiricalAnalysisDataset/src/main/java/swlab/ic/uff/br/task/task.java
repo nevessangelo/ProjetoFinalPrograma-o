@@ -7,12 +7,14 @@ package swlab.ic.uff.br.task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import swlab.ic.uff.br.Controller.CreateTFIDF;
+import swlab.ic.uff.br.Controller.Creates;
 import static swlab.ic.uff.br.Controller.Creates.CreateSets;
 import static swlab.ic.uff.br.Controller.Creates.VectorFeatures;
 import static swlab.ic.uff.br.Controller.Creates.mean_lists;
@@ -54,9 +56,11 @@ public class task implements  Callable<MeanRetrivieal> {
         all_datasets.addAll(test);
         all_datasets.addAll(tranning_1);
         all_datasets.addAll(tranning_2);
+        
+        
 
         ArrayList<Integer> vector_features = VectorFeatures(all_datasets_tranning, entrada);
-    
+        
         lists.setTest(test);
         lists.setTranning_1(tranning_1);
         lists.setTranning_2(tranning_2);
@@ -92,13 +96,20 @@ public class task implements  Callable<MeanRetrivieal> {
                 Mean mean = cosseno.Recomendation(computation, all_datasets_tranning, dataset, set);
                 list_ndcg.add(mean.getNdcg());
                 list_recall.add(mean.getRecall());
-                size = mean.getNdcg().size();
+                //size = mean.getNdcg().size();
             }
         }
-
-        ArrayList<Double> mean_ndcg = mean_lists(list_ndcg, size);
-        ArrayList<Double> mean_recall = mean_lists(list_recall, size);
-
+        
+        ArrayList<ArrayList<Double>> zippednDCG = Creates.zip(list_ndcg);
+        //System.out.println(zippednDCG);
+        
+        ArrayList<ArrayList<Double>> zippedRecall = Creates.zip(list_recall);
+        
+        ArrayList<Double> mean_ndcg = mean_lists(zippednDCG);
+        //System.out.println(mean_ndcg);
+        ArrayList<Double> mean_recall = mean_lists(zippedRecall);
+        //System.out.println(mean_recall);
+        
         MeanRetrivieal meanRetrivieal = new MeanRetrivieal();
         meanRetrivieal.setNdcg_mean(mean_ndcg);
         meanRetrivieal.setRecall_mean(mean_recall);

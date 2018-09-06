@@ -177,10 +177,15 @@ public abstract class Strategy {
             }
             recall_.add(cont);
         }
-
+        
+    
+        double aux = 0.0;
         ArrayList<Double> recall = new ArrayList<>();
         for (Double i : recall_) {
-            double aux = i / recall_.size();
+            aux = i / cont;
+            if(Double.isNaN(aux)){
+                aux = 0.0;
+            }
             recall.add(aux);
         }
         

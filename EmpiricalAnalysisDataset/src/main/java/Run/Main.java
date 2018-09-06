@@ -15,6 +15,7 @@ public class Main {
     public static void main(String[] args) {
         //Methods.PopuledLists(1);
         Methods.PopuledLists(2);
+        //Methods.PopuledLists(3);
     }
     
 }
